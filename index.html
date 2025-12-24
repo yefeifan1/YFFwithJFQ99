@@ -2,477 +2,642 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <meta name="touch-callout" content="none">
-    <meta name="ms-touch-action" content="none">
-    <title>给宝宝的专属小惊喜</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>给宝宝的圣诞惊喜 ❤️</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            height: 100vh; 
-            font-family: "Microsoft YaHei", sans-serif;
-            overflow: hidden; 
-            touch-action: manipulation; /* 优化移动端触摸行为 */
+        /* 基础样式重置 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        /* 加载提示 */
-        .loading {
-            position: fixed;
+        
+        body {
+            font-family: 'Microsoft YaHei', 'Arial', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+        
+        /* 页面容器 */
+        .page {
+            position: absolute;
             top: 0;
             left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: #000;
-            color: #ffd1dc;
+            width: 100%;
+            height: 100%;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 9999;
-            font-size: 1.2rem;
-            transition: opacity 0.5s ease;
+            transition: opacity 1s ease;
         }
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #ffd1dc;
-            border-top: 5px solid #ff4d6d;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+        
+        /* 第一页样式 */
+        #page1 {
+            z-index: 10;
+        }
+        
+        .page1-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1;
+        }
+        
+        .page1-content {
+            text-align: center;
+            color: white;
+            text-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            max-width: 90%;
+        }
+        
+        .title {
+            font-size: 2.5rem;
             margin-bottom: 20px;
+            line-height: 1.4;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        
+        .click-hint {
+            font-size: 1.3rem;
+            margin-top: 20px;
+            color: #fff;
+            opacity: 0.9;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
         }
-        /* 错误提示 */
-        .error-toast {
-            position: fixed;
-            top: 20px;
+        
+        /* 跳动爱心样式 */
+        .heart {
+            font-size: 100px;
+            cursor: pointer;
+            animation: heartbeat 1.2s infinite;
+            filter: drop-shadow(0 5px 15px rgba(255, 0, 85, 0.4));
+            transition: transform 0.3s ease;
+        }
+        
+        .heart:hover {
+            transform: scale(1.1);
+        }
+        
+        @keyframes heartbeat {
+            0% { transform: scale(1); }
+            25% { transform: scale(1.1); }
+            50% { transform: scale(1); }
+            75% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        /* 第二页样式 */
+        #page2 {
+            opacity: 0;
+            pointer-events: none;
+            z-index: 5;
+        }
+        
+        .video-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -2;
+        }
+        
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: -1;
+        }
+        
+        .love-messages {
+            position: absolute;
+            bottom: 20%;
             left: 50%;
             transform: translateX(-50%);
-            background: #ff4d6d;
-            color: #fff;
-            padding: 10px 20px;
-            border-radius: 20px;
-            z-index: 9998;
-            display: none;
-            font-size: 0.9rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            text-align: center;
+            color: white;
+            width: 90%;
+            max-width: 600px;
         }
-        .float-container {
+        
+        .message {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            line-height: 1.5;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+            opacity: 0;
+            white-space: nowrap;
+            overflow: hidden;
+        }
+        
+        /* 打字机效果动画 */
+        .typing {
+            display: inline-block;
+            overflow: hidden;
+            border-right: 3px solid rgba(255, 255, 255, 0.7);
+            animation: typing 3s steps(40, end), blink-caret 0.75s step-end infinite;
+        }
+        
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+        
+        @keyframes blink-caret {
+            from, to { border-color: transparent; }
+            50% { border-color: rgba(255, 255, 255, 0.7); }
+        }
+        
+        /* 控制按钮样式 */
+        .controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 100;
+        }
+        
+        .control-btn {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+        }
+        
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+        
+        /* 雪花和爱心特效 */
+        .effects-container {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100vw;
-            height: 100vh;
+            width: 100%;
+            height: 100%;
             pointer-events: none;
-            z-index: 0;
+            z-index: 1;
         }
-        .float-heart {
+        
+        .snowflake, .floating-heart {
             position: absolute;
-            width: 12px;
-            height: 12px;
-            background: #ffd1dc;
-            transform: rotate(45deg);
-            opacity: 0.6;
-            animation: float 8s linear infinite;
+            color: white;
+            user-select: none;
+            pointer-events: none;
         }
-        .float-heart::before,
-        .float-heart::after {
-            content: "";
-            position: absolute;
-            width: 12px;
-            height: 12px;
-            background: #ffd1dc;
-            border-radius: 50%;
+        
+        .snowflake {
+            font-size: 20px;
+            opacity: 0.8;
         }
-        .float-heart::before {
-            top: -6px;
-            left: 0;
+        
+        .floating-heart {
+            font-size: 24px;
+            color: #ffb6c1; /* 淡粉色 */
+            text-shadow: 0 0 10px rgba(255, 182, 193, 0.7);
         }
-        .float-heart::after {
-            top: 0;
-            left: -6px;
-        }
-        @keyframes float {
-            0% { 
-                transform: rotate(45deg) translateY(-10px) translateX(0); 
-                opacity: 0.6;
+        
+        /* 雪花和爱心飘落动画 */
+        @keyframes fall {
+            0% {
+                transform: translateY(-100px) rotate(0deg);
+                opacity: 1;
             }
-            50% { 
-                transform: rotate(45deg) translateY(50vh) translateX(10px); 
-                opacity: 0.3;
-            }
-            100% { 
-                transform: rotate(45deg) translateY(100vh) translateX(-10px); 
+            100% {
+                transform: translateY(100vh) rotate(360deg);
                 opacity: 0;
             }
         }
-        .bg-img {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            object-fit: cover;
-            z-index: -1;
-            opacity: 0.95;
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .title {
+                font-size: 1.8rem;
+            }
+            
+            .click-hint {
+                font-size: 1.1rem;
+            }
+            
+            .heart {
+                font-size: 80px;
+            }
+            
+            .message {
+                font-size: 1.4rem;
+            }
+            
+            .controls {
+                top: 15px;
+                left: 15px;
+            }
+            
+            .control-btn {
+                width: 35px;
+                height: 35px;
+                font-size: 18px;
+            }
         }
-        .bg-video {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            object-fit: cover;
-            z-index: -1;
-            opacity: 0.8;
-            display: none;
-        }
-        .page1 {
-            position: relative;
-            z-index: 1;
-            text-align: center;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 0 20px;
-            transition: opacity 0.5s ease;
-        }
-        .page2 {
-            position: relative;
-            z-index: 1;
-            text-align: center;
-            height: 100vh;
-            display: none;
-            flex-direction: column;
-            justify-content: flex-end;
-            align-items: center;
-            padding: 0 20px 80px;
-            gap: 15px;
-            /* 移动端滚动优化 */
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            scroll-behavior: smooth;
-            overscroll-behavior: contain;
-            transition: opacity 0.5s ease;
-        }
-        /* 媒体容器响应式优化 */
-        .media-box {
-            width: 90%; /* 移动端加宽 */
-            max-width: 500px;
-            position: relative;
-            width: 100%;
-            height: 0;
-            padding-bottom: 56.25%; 
-            margin: 0 auto;
-        }
-        .media-box iframe,
-        .media-box img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-            border-radius: 8px;
-            object-fit: cover;
-        }
-        /* 视频加载占位 */
-        .video-placeholder {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #0003;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #fff;
-            border-radius: 8px;
-        }
-        .audio-box {
-            width: 90%;
-            max-width: 500px;
-            margin: 0 auto;
-        }
-        .audio-box iframe {
-            width: 100%;
-            height: 60px;
-            border: none;
-        }
-        .click-heart {
-            font-size: 80px; /* 移动端放大爱心 */
-            color: #ff4d6d;
-            cursor: pointer;
-            margin-top: 30px;
-            display: inline-block;
-            transition: all 0.3s ease;
-            text-shadow: 0 2px 8px rgba(0,0,0,0.3);
-            /* 触摸反馈 */
-            -webkit-tap-highlight-color: transparent;
-        }
-        .click-heart:active { /* 触摸按下效果 */
-            transform: scale(1.3);
-            color: #ff2e56;
-        }
-        .heart-click {
-            animation: jump 0.5s ease, flash 0.3s linear;
-        }
-        @keyframes jump {
-            0% { transform: scale(1.2); }
-            50% { transform: scale(1.8); }
-            100% { transform: scale(1.2); }
-        }
-        @keyframes flash {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
-        }
-        h1 { 
-            color: #fff; 
-            margin-bottom: 20px; 
-            font-size: 2rem; /* 移动端适配字体 */
-            text-shadow: 0 2px 8px rgba(0,0,0,0.5); 
-            line-height: 1.4;
-        }
-        p { 
-            font-size: 1rem;
-            color: #fff; 
-            margin: 8px 0; 
-            line-height: 1.6; 
-            text-shadow: 0 2px 8px rgba(0,0,0,0.5); 
-            font-weight: 600;
-        }
-        audio { display: none; }
-        /* 小屏手机适配 */
-        @media (max-width: 375px) {
-            .click-heart { font-size: 60px; }
-            h1 { font-size: 1.6rem; }
-            .page2 { padding-bottom: 40px; }
+        
+        @media (max-width: 480px) {
+            .title {
+                font-size: 1.5rem;
+            }
+            
+            .click-hint {
+                font-size: 1rem;
+            }
+            
+            .heart {
+                font-size: 60px;
+            }
+            
+            .message {
+                font-size: 1.2rem;
+            }
+            
+            .love-messages {
+                bottom: 15%;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- 加载提示 -->
-    <div class="loading" id="loading">
-        <div class="loading-spinner"></div>
-        <p>正在准备惊喜...</p>
-    </div>
-    <!-- 错误提示 -->
-    <div class="error-toast" id="errorToast">资源加载失败，请稍后重试</div>
-
-    <div class="float-container" id="floatContainer"></div>
-    <img class="bg-img" id="mainBg" src="bg-img.jpg" alt="圣诞背景图" onload="resourceLoaded('img')" onerror="resourceError('背景图')">
-    <video class="bg-video" id="bgVideo" muted loop preload="auto" onloadeddata="resourceLoaded('video')" onerror="resourceError('背景视频')">
-        <source src="surprise-bg.mp4" type="video/mp4">
-        您的浏览器不支持视频，请更换浏览器重试~
-    </video>
-
-    <div class="page1" id="page1">
-        <h1>嘿嘿，恭喜宝宝发现我和你的小惊喜啦</h1>
-        <div class="click-heart" id="heartBtn">❤️</div>
-    </div>
-
-    <div class="page2" id="page2">
-        <!-- B站视频：带加载占位 -->
-        <div class="media-box">
-            <div class="video-placeholder" id="videoPlaceholder">视频加载中...</div>
-            <iframe id="bilibiliVideo" src="https://player.bilibili.com/player.html?bvid=BV1wfBLBkEGg&page=1&autoplay=0" 
-                    scrolling="no" border="0" frameborder="no" framespacing="0" 
-                    allowfullscreen="true" referrerpolicy="no-referrer"
-                    onload="videoIframeLoaded()" onerror="resourceError('B站视频')"></iframe>
+    <!-- 第一页 -->
+    <div class="page" id="page1">
+        <!-- 背景图片 - 使用您提供的Catbox图片链接 -->
+        <img src="https://files.catbox.moe/44506s.jpg" 
+             alt="浪漫背景" 
+             class="page1-bg"
+             onerror="this.src='https://images.unsplash.com/photo-1512389142860-9c449e58a543?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80'">
+        
+        <!-- 控制按钮 -->
+        <div class="controls">
+            <button class="control-btn" id="videoControl" title="播放/暂停视频">▶️</button>
+            <button class="control-btn" id="audioControl" title="播放/暂停音频">🎵</button>
         </div>
-        <!-- 指定图片 -->
-        <div class="media-box">
-            <a href="https://youke2.picui.cn/s1/2025/12/24/694be8edce95c.jpg" target="_blank">
-                <img src="https://youke2.picui.cn/s1/2025/12/24/694be8edce95c.jpg" alt="表白纪念图片" onload="resourceLoaded('pic')" onerror="resourceError('表白图片')">
-            </a>
+        
+        <!-- 主内容 -->
+        <div class="page1-content">
+            <h1 class="title">嘿嘿，恭喜宝宝发现我给你的小惊喜啦</h1>
+            <div class="heart" id="mainHeart">❤️</div>
+            <p class="click-hint">点击爱心和我一起度过我们的第一个圣诞</p>
         </div>
-        <!-- 音频模块 -->
-        <div class="audio-box">
-            <iframe src="https://vocaroo.com/embed/1tooZKPy5SVJ?autoplay=0" frameborder="0" allow="autoplay" onerror="resourceError('音频')"></iframe><br>
-            <a href="https://voca.ro/1tooZKPy5SVJ" title="Vocaroo 錄音機" target="_blank" style="color:#ffd1dc; text-decoration:none;">在 Vocaroo 上檢視 &gt;&gt;</a>
-        </div>
-        <!-- 表白文案 -->
-        <p>宝宝宝宝，我好喜欢好喜欢你！</p>
-        <p>我不要看缘分，我就是要和你在一起一辈子！</p>
-        <p>我也没有信心，但是我有决心！</p>
-        <p>最喜欢最喜欢你啦，mua～</p>
     </div>
-
-<script>
-    // 全局状态
-    let loadedCount = 0;
-    const totalResources = 3; // 背景图、背景视频、表白图片
-    let resourcesLoaded = false;
-    let hasMediaStarted = false;
-    const LOAD_TIMEOUT = 5000; // 5秒加载超时
-    const loading = document.getElementById('loading');
-    const errorToast = document.getElementById('errorToast');
-    const videoPlaceholder = document.getElementById('videoPlaceholder');
-
-    // 隐藏加载提示
-    function hideLoading() {
-        if (resourcesLoaded) return;
-        resourcesLoaded = true;
-        loading.style.opacity = 0;
-        setTimeout(() => {
-            loading.style.display = 'none';
-        }, 500);
-    }
-
-    // 资源加载成功
-    function resourceLoaded(type) {
-        loadedCount++;
-        console.log(`${type} 加载完成，已加载: ${loadedCount}/${totalResources}`);
-        if (loadedCount >= totalResources) {
-            hideLoading();
-        }
-    }
-
-    // 资源加载失败
-    function resourceError(resName) {
-        console.warn(`${resName}加载失败`);
-        showToast(`${resName}加载失败，不影响核心体验~`);
-        loadedCount++;
-        hideLoading(); // 确保页面继续加载
-    }
-
-    // 显示错误提示
-    function showToast(text) {
-        errorToast.innerText = text;
-        errorToast.style.display = 'block';
-        setTimeout(() => {
-            errorToast.style.display = 'none';
-        }, 3000);
-    }
-
-    // B站视频iframe加载完成
-    function videoIframeLoaded() {
-        videoPlaceholder.style.display = 'none';
-        // 移除自动播放逻辑，让用户手动控制
-    }
-
-    // 生成爱心漂浮
-    function createFloatHearts() {
-        const floatContainer = document.getElementById('floatContainer');
-        const heartCount = Math.min(25, Math.floor(window.innerWidth / 20)); // 自适应数量
-
-        for (let i = 0; i < heartCount; i++) {
-            const heart = document.createElement('div');
-            heart.classList.add('float-heart');
-            heart.style.left = `${Math.random() * 100}vw`;
-            heart.style.top = `${Math.random() * -100}px`;
-            const duration = Math.random() * 5 + 3;
-            heart.style.animationDuration = `${duration}s`;
-            heart.style.animationDelay = `${Math.random() * 3}s`;
-            heart.style.willChange = 'transform'; // 性能优化
-            floatContainer.appendChild(heart);
-        }
-    }
-
-    // 页面加载完成初始化
-    window.onload = () => {
-        createFloatHearts();
+    
+    <!-- 第二页 -->
+    <div class="page" id="page2">
+        <!-- 背景视频 - 使用您提供的Catbox视频链接 -->
+        <video class="video-bg" id="bgVideo" loop muted playsinline>
+            <!-- 主视频源：您的Catbox视频链接 -->
+            <source src="https://files.catbox.moe/ier2g0.mp4" type="video/mp4">
+            <!-- 备用视频源：在线视频（如果Catbox链接失效） -->
+            <source src="https://assets.mixkit.co/videos/preview/mixkit-heart-shaped-balloon-4929-large.mp4" type="video/mp4">
+        </video>
         
-        // 绑定爱心点击/触摸事件
-        const heartBtn = document.getElementById('heartBtn');
-        heartBtn.addEventListener('pointerdown', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            heartAnimate();
-        });
+        <!-- 半透明遮罩 -->
+        <div class="overlay"></div>
         
-        // 绑定键盘事件
-        document.addEventListener('keydown', (e) => {
-            if (e.code === 'Space' || e.code === 'Enter') {
-                playMedia();
-            }
-        });
+        <!-- 特效容器 -->
+        <div class="effects-container" id="effectsContainer"></div>
         
-        // 全局点击播放媒体
-        document.addEventListener('click', playMedia);
-        document.addEventListener('touchstart', playMedia, { once: true });
+        <!-- 表白文字 -->
+        <div class="love-messages">
+            <p class="message" id="message1"></p>
+            <p class="message" id="message2"></p>
+            <p class="message" id="message3"></p>
+            <p class="message" id="message4"></p>
+            <p class="message" id="message5"></p>
+            <p class="message" id="message6"></p>
+            <p class="message" id="message7"></p>
+        </div>
+    </div>
+    
+    <!-- 音频元素 - 已替换为您的Catbox音频链接（可不可以） -->
+    <audio id="bgMusic" loop>
+        <!-- 主音频源：您的Catbox音频链接（可不可以） -->
+        <source src="https://files.catbox.moe/crqqwd.mp3" type="audio/mpeg">
+        <!-- 备用音频源1：网易云音乐版本 -->
+        <source src="https://music.163.com/song/media/outer/url?id=1297742316.mp3" type="audio/mpeg">
+        <!-- 备用音频源2：另一个版本 -->
+        <source src="https://freetyst.ml/music/222222/1968929/1968929.mp3" type="audio/mpeg">
+    </audio>
+    
+    <script>
+        // 页面元素
+        const page1 = document.getElementById('page1');
+        const page2 = document.getElementById('page2');
+        const mainHeart = document.getElementById('mainHeart');
+        const bgVideo = document.getElementById('bgVideo');
+        const bgMusic = document.getElementById('bgMusic');
+        const effectsContainer = document.getElementById('effectsContainer');
+        const videoControl = document.getElementById('videoControl');
+        const audioControl = document.getElementById('audioControl');
         
-        // 兜底：若资源加载超时，强制隐藏加载提示
-        setTimeout(() => {
-            if (!resourcesLoaded) {
-                showToast('部分资源加载较慢，正在展示内容...');
-                hideLoading();
-            }
-        }, LOAD_TIMEOUT);
+        // 表白文字内容
+        const messages = [
+            "宝宝宝宝",
+            "这是我和你过的第一个圣诞节",
+            "我好喜欢好喜欢你！",
+            "我不要看缘分",
+            "我就是要和你在一起一辈子！",
+            "我也没有信心，但是我有决心！",
+            "最喜欢最喜欢你啦，mua～"
+        ];
         
-        // 超时完全隐藏
-        setTimeout(() => {
-            if (loading.style.display !== 'none') {
-                hideLoading();
-            }
-        }, 8000);
-    };
-
-    // 点击/触摸爱心逻辑
-    async function heartAnimate() {
-        const clickHeart = document.querySelector('.click-heart');
-        clickHeart.classList.add('heart-click');
+        // 初始化变量
+        let isVideoPlaying = false;
+        let isAudioPlaying = false;
+        let snowflakes = [];
+        let hearts = [];
         
-        setTimeout(async () => {
-            document.querySelector('.bg-img').style.display = 'none';
-            const video = document.querySelector('.bg-video');
-            video.style.display = 'block';
-            
-            try {
-                // 先静音播放确保成功
-                video.muted = true;
-                await video.play();
-                // 尝试取消静音
-                video.muted = false;
-            } catch (err) {
-                console.log('视频自动播放被阻止:', err);
-                showToast('点击页面任意处播放背景音乐~');
-            }
-            
-            document.getElementById('page1').style.display = 'none';
-            document.getElementById('page2').style.display = 'flex';
-            
-            // 页面切换后自动滚动到底部
+        // 页面切换
+        mainHeart.addEventListener('click', function() {
+            // 跳动动画
+            this.style.animation = 'none';
             setTimeout(() => {
-                document.getElementById('page2').scrollTop = document.getElementById('page2').scrollHeight;
-            }, 100);
-        }, 300);
+                this.style.animation = 'heartbeat 1.2s infinite';
+            }, 10);
+            
+            // 切换页面
+            page1.style.opacity = '0';
+            page1.style.pointerEvents = 'none';
+            
+            setTimeout(() => {
+                page2.style.opacity = '1';
+                page2.style.pointerEvents = 'auto';
+                
+                // 播放视频和音频
+                playVideo();
+                playAudio();
+                
+                // 开始特效
+                startEffects();
+                
+                // 预加载视频
+                bgVideo.load();
+                
+                // 开始打字机效果
+                startTypingEffect();
+                
+            }, 1000);
+        });
         
-        setTimeout(() => {
-            clickHeart.classList.remove('heart-click');
-        }, 600);
-    }
-
-    // 播放媒体
-    function playMedia() {
-        if (hasMediaStarted) return;
-        hasMediaStarted = true;
+        // 打字机效果
+        function startTypingEffect() {
+            const messageElements = [
+                document.getElementById('message1'),
+                document.getElementById('message2'),
+                document.getElementById('message3'),
+                document.getElementById('message4'),
+                document.getElementById('message5'),
+                document.getElementById('message6'),
+                document.getElementById('message7')
+            ];
+            
+            // 清空所有消息元素
+            messageElements.forEach(el => {
+                el.innerHTML = '';
+                el.style.opacity = 0;
+            });
+            
+            // 逐个显示消息
+            let currentMessage = 0;
+            
+            function showNextMessage() {
+                if (currentMessage >= messages.length) return;
+                
+                const element = messageElements[currentMessage];
+                const text = messages[currentMessage];
+                
+                // 设置消息文本
+                element.innerHTML = '';
+                element.style.opacity = 1;
+                
+                // 创建打字机效果
+                let i = 0;
+                function typeWriter() {
+                    if (i < text.length) {
+                        element.innerHTML += text.charAt(i);
+                        i++;
+                        setTimeout(typeWriter, 100);
+                    } else {
+                        // 显示下一条消息
+                        currentMessage++;
+                        setTimeout(showNextMessage, 1000);
+                    }
+                }
+                
+                // 开始打字效果
+                typeWriter();
+            }
+            
+            // 开始显示第一条消息
+            setTimeout(showNextMessage, 500);
+        }
         
-        const video = document.getElementById('bgVideo');
-        if (video && video.paused) {
-            video.play().catch(err => {
-                console.log('背景视频播放失败:', err);
-                showToast('背景视频需要手动播放哦~');
-                hasMediaStarted = false; // 重置标志允许重试
+        // 视频控制
+        function playVideo() {
+            bgVideo.play().then(() => {
+                isVideoPlaying = true;
+                videoControl.textContent = '⏸️';
+            }).catch(error => {
+                console.log('视频播放失败:', error);
+                videoControl.textContent = '▶️';
             });
         }
         
-        // 尝试播放B站视频
-        const biliVideo = document.getElementById('bilibiliVideo');
-        if (biliVideo) {
-            try {
-                // 只是标记已尝试，B站iframe不支持外部控制播放
-                biliVideo.classList.add('played');
-            } catch (err) {
-                console.log('B站视频播放失败:', err);
+        function pauseVideo() {
+            bgVideo.pause();
+            isVideoPlaying = false;
+            videoControl.textContent = '▶️';
+        }
+        
+        videoControl.addEventListener('click', function() {
+            if (isVideoPlaying) {
+                pauseVideo();
+            } else {
+                playVideo();
+            }
+        });
+        
+        // 音频控制
+        function playAudio() {
+            bgMusic.volume = 0.5;
+            bgMusic.play().then(() => {
+                isAudioPlaying = true;
+                audioControl.textContent = '🔊';
+            }).catch(error => {
+                console.log('音频播放失败:', error);
+                audioControl.textContent = '🔇';
+            });
+        }
+        
+        function pauseAudio() {
+            bgMusic.pause();
+            isAudioPlaying = false;
+            audioControl.textContent = '🔇';
+        }
+        
+        audioControl.addEventListener('click', function() {
+            if (isAudioPlaying) {
+                pauseAudio();
+            } else {
+                playAudio();
+            }
+        });
+        
+        // 创建雪花
+        function createSnowflake() {
+            const snowflake = document.createElement('div');
+            snowflake.className = 'snowflake';
+            snowflake.textContent = '❄️';
+            snowflake.style.left = Math.random() * 100 + 'vw';
+            snowflake.style.fontSize = (Math.random() * 20 + 10) + 'px';
+            snowflake.style.opacity = Math.random() * 0.7 + 0.3;
+            
+            // 设置随机飘落速度和延迟
+            const duration = Math.random() * 8 + 6; // 6-14秒
+            const delay = Math.random() * 5;
+            
+            snowflake.style.animation = `fall ${duration}s linear ${delay}s infinite`;
+            
+            effectsContainer.appendChild(snowflake);
+            snowflakes.push(snowflake);
+            
+            // 移除旧的雪花
+            if (snowflakes.length > 100) {
+                const oldSnowflake = snowflakes.shift();
+                if (oldSnowflake && oldSnowflake.parentNode) {
+                    oldSnowflake.parentNode.removeChild(oldSnowflake);
+                }
             }
         }
-    }
-</script>
+        
+        // 创建爱心 - 与雪花速度一致
+        function createFloatingHeart() {
+            const heart = document.createElement('div');
+            heart.className = 'floating-heart';
+            heart.textContent = '❤️';
+            heart.style.left = Math.random() * 100 + 'vw';
+            heart.style.fontSize = (Math.random() * 20 + 15) + 'px'; // 15-35px
+            heart.style.opacity = Math.random() * 0.8 + 0.2;
+            
+            // 与雪花相同的飘落速度和延迟
+            const duration = Math.random() * 8 + 6; // 6-14秒，与雪花一致
+            const delay = Math.random() * 5;
+            
+            heart.style.animation = `fall ${duration}s linear ${delay}s infinite`;
+            
+            effectsContainer.appendChild(heart);
+            hearts.push(heart);
+            
+            // 移除旧的爱心
+            if (hearts.length > 50) {
+                const oldHeart = hearts.shift();
+                if (oldHeart && oldHeart.parentNode) {
+                    oldHeart.parentNode.removeChild(oldHeart);
+                }
+            }
+        }
+        
+        // 开始特效
+        function startEffects() {
+            // 开始创建特效
+            setInterval(createSnowflake, 300);
+            setInterval(createFloatingHeart, 500);
+            
+            // 初始创建一些特效
+            for (let i = 0; i < 20; i++) {
+                createSnowflake();
+            }
+            for (let i = 0; i < 10; i++) {
+                createFloatingHeart();
+            }
+        }
+        
+        // 页面加载完成后尝试播放音频
+        window.addEventListener('load', function() {
+            // 设置背景图片的备用方案
+            const bgImg = document.querySelector('.page1-bg');
+            if (bgImg.naturalWidth === 0) {
+                console.log('Catbox图片加载失败，使用备用图片');
+                bgImg.src = 'https://images.unsplash.com/photo-1518568814500-bf0f8d125f46?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80';
+            }
+            
+            // 尝试播放音频（可能需要用户交互）
+            setTimeout(() => {
+                playAudio();
+            }, 1000);
+        });
+        
+        // 处理页面可见性变化
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                if (isVideoPlaying) pauseVideo();
+                if (isAudioPlaying) pauseAudio();
+            } else {
+                if (page2.style.opacity === '1') {
+                    if (!isVideoPlaying) playVideo();
+                    if (!isAudioPlaying) playAudio();
+                }
+            }
+        });
+        
+        // 触摸事件支持
+        document.addEventListener('touchstart', function() {
+            if (!isAudioPlaying && page2.style.opacity === '1') {
+                playAudio();
+            }
+        }, { once: true });
+        
+        // 资源加载失败处理
+        bgVideo.addEventListener('error', function() {
+            console.log('视频加载失败，切换到备用视频源');
+        });
+        
+        bgMusic.addEventListener('error', function() {
+            console.log('Catbox音频加载失败，切换到备用音频源');
+        });
+        
+        // 添加键盘快捷键支持
+        document.addEventListener('keydown', function(e) {
+            if (e.code === 'Space') {
+                if (page2.style.opacity === '1') {
+                    if (isVideoPlaying) {
+                        pauseVideo();
+                    } else {
+                        playVideo();
+                    }
+                }
+            } else if (e.code === 'KeyM') {
+                if (isAudioPlaying) {
+                    pauseAudio();
+                } else {
+                    playAudio();
+                }
+            }
+        });
+    </script>
 </body>
 </html>
