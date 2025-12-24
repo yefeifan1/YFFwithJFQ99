@@ -98,8 +98,7 @@
             z-index: 5;
         }
         
-        /* 第二页背景图片样式 */
-        .page2-bg {
+        .video-bg {
             position: absolute;
             top: 0;
             left: 0;
@@ -187,11 +186,6 @@
         .control-btn:hover {
             background: rgba(255, 255, 255, 0.3);
             transform: scale(1.1);
-        }
-        
-        /* 隐藏视频控制按钮，因为现在没有视频了 */
-        #videoControl {
-            display: none;
         }
         
         /* 雪花和爱心特效 */
@@ -297,9 +291,9 @@
              class="page1-bg"
              onerror="this.src='https://images.unsplash.com/photo-1512389142860-9c449e58a543?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80'">
         
-        <!-- 控制按钮 - 只显示音频控制 -->
+        <!-- 控制按钮 -->
         <div class="controls">
-            <button class="control-btn" id="videoControl" title="播放/暂停视频" style="display: none;">▶️</button>
+            <button class="control-btn" id="videoControl" title="播放/暂停视频">▶️</button>
             <button class="control-btn" id="audioControl" title="播放/暂停音频">🎵</button>
         </div>
         
@@ -313,11 +307,13 @@
     
     <!-- 第二页 -->
     <div class="page" id="page2">
-        <!-- 背景图片 - 使用您提供的Catbox图片链接（替换了视频） -->
-        <img src="https://files.catbox.moe/q59n79.jpg" 
-             alt="浪漫背景" 
-             class="page2-bg"
-             onerror="this.src='https://images.unsplash.com/photo-1518568814500-bf0f8d125f46?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80'">
+        <!-- 背景视频 - 使用您提供的Catbox视频链接 -->
+        <video class="video-bg" id="bgVideo" loop muted playsinline>
+            <!-- 主视频源：您的Catbox视频链接 -->
+            <source src="https://files.catbox.moe/ier2g0.mp4" type="video/mp4">
+            <!-- 备用视频源：在线视频（如果Catbox链接失效） -->
+            <source src="https://assets.mixkit.co/videos/preview/mixkit-heart-shaped-balloon-4929-large.mp4" type="video/mp4">
+        </video>
         
         <!-- 半透明遮罩 -->
         <div class="overlay"></div>
@@ -352,6 +348,7 @@
         const page1 = document.getElementById('page1');
         const page2 = document.getElementById('page2');
         const mainHeart = document.getElementById('mainHeart');
+        const bgVideo = document.getElementById('bgVideo');
         const bgMusic = document.getElementById('bgMusic');
         const effectsContainer = document.getElementById('effectsContainer');
         const videoControl = document.getElementById('videoControl');
@@ -369,6 +366,7 @@
         ];
         
         // 初始化变量
+        let isVideoPlaying = false;
         let isAudioPlaying = false;
         let snowflakes = [];
         let hearts = [];
@@ -389,11 +387,15 @@
                 page2.style.opacity = '1';
                 page2.style.pointerEvents = 'auto';
                 
-                // 播放音频
+                // 播放视频和音频
+                playVideo();
                 playAudio();
                 
                 // 开始特效
                 startEffects();
+                
+                // 预加载视频
+                bgVideo.load();
                 
                 // 开始打字机效果
                 startTypingEffect();
@@ -453,6 +455,31 @@
             // 开始显示第一条消息
             setTimeout(showNextMessage, 500);
         }
+        
+        // 视频控制
+        function playVideo() {
+            bgVideo.play().then(() => {
+                isVideoPlaying = true;
+                videoControl.textContent = '⏸️';
+            }).catch(error => {
+                console.log('视频播放失败:', error);
+                videoControl.textContent = '▶️';
+            });
+        }
+        
+        function pauseVideo() {
+            bgVideo.pause();
+            isVideoPlaying = false;
+            videoControl.textContent = '▶️';
+        }
+        
+        videoControl.addEventListener('click', function() {
+            if (isVideoPlaying) {
+                pauseVideo();
+            } else {
+                playVideo();
+            }
+        });
         
         // 音频控制
         function playAudio() {
@@ -558,13 +585,6 @@
                 bgImg.src = 'https://images.unsplash.com/photo-1518568814500-bf0f8d125f46?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80';
             }
             
-            // 设置第二页背景图片的备用方案
-            const page2BgImg = document.querySelector('.page2-bg');
-            if (page2BgImg && page2BgImg.naturalWidth === 0) {
-                console.log('第二页Catbox图片加载失败，使用备用图片');
-                page2BgImg.src = 'https://images.unsplash.com/photo-1518568814500-bf0f8d125f46?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80';
-            }
-            
             // 尝试播放音频（可能需要用户交互）
             setTimeout(() => {
                 playAudio();
@@ -574,9 +594,11 @@
         // 处理页面可见性变化
         document.addEventListener('visibilitychange', function() {
             if (document.hidden) {
+                if (isVideoPlaying) pauseVideo();
                 if (isAudioPlaying) pauseAudio();
             } else {
                 if (page2.style.opacity === '1') {
+                    if (!isVideoPlaying) playVideo();
                     if (!isAudioPlaying) playAudio();
                 }
             }
@@ -589,7 +611,11 @@
             }
         }, { once: true });
         
-        // 音频加载失败处理
+        // 资源加载失败处理
+        bgVideo.addEventListener('error', function() {
+            console.log('视频加载失败，切换到备用视频源');
+        });
+        
         bgMusic.addEventListener('error', function() {
             console.log('Catbox音频加载失败，切换到备用音频源');
         });
@@ -597,12 +623,14 @@
         // 添加键盘快捷键支持
         document.addEventListener('keydown', function(e) {
             if (e.code === 'Space') {
-                // 空格键可以切换页面
-                if (page2.style.opacity === '0' || page2.style.opacity === '') {
-                    mainHeart.click();
+                if (page2.style.opacity === '1') {
+                    if (isVideoPlaying) {
+                        pauseVideo();
+                    } else {
+                        playVideo();
+                    }
                 }
             } else if (e.code === 'KeyM') {
-                // M键控制音频播放/暂停
                 if (isAudioPlaying) {
                     pauseAudio();
                 } else {
