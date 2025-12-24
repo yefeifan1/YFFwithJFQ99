@@ -2,26 +2,72 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="touch-callout" content="none">
+    <meta name="ms-touch-action" content="none">
     <title>给宝宝的专属小惊喜</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
             height: 100vh; 
             font-family: "Microsoft YaHei", sans-serif;
-            overflow: hidden; /* 隐藏滚动条 */
+            overflow: hidden; 
+            touch-action: manipulation; /* 优化移动端触摸行为 */
         }
-        /* 爱心漂浮特效容器 */
+        /* 加载提示 */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            color: #ffd1dc;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            font-size: 1.2rem;
+            transition: opacity 0.5s ease;
+        }
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #ffd1dc;
+            border-top: 5px solid #ff4d6d;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* 错误提示 */
+        .error-toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ff4d6d;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 20px;
+            z-index: 9998;
+            display: none;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
         .float-container {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            pointer-events: none; /* 不遮挡点击操作 */
+            pointer-events: none;
             z-index: 0;
         }
-        /* 爱心漂浮样式：浅粉+低透明度，不抢镜 */
         .float-heart {
             position: absolute;
             width: 12px;
@@ -62,7 +108,6 @@
                 opacity: 0;
             }
         }
-        /* 初始圣诞树背景图 */
         .bg-img {
             position: fixed;
             top: 0;
@@ -73,7 +118,6 @@
             z-index: -1;
             opacity: 0.95;
         }
-        /* 切换后视频背景 */
         .bg-video {
             position: fixed;
             top: 0;
@@ -95,28 +139,35 @@
             justify-content: center;
             align-items: center;
             padding: 0 20px;
+            transition: opacity 0.5s ease;
         }
         .page2 {
             position: relative;
             z-index: 1;
             text-align: center;
             height: 100vh;
-            display: flex;
+            display: none;
             flex-direction: column;
             justify-content: flex-end;
             align-items: center;
             padding: 0 20px 80px;
-            display: none;
             gap: 15px;
+            /* 移动端滚动优化 */
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+            overscroll-behavior: contain;
+            transition: opacity 0.5s ease;
         }
-        /* 统一16:9比例容器 */
+        /* 媒体容器响应式优化 */
         .media-box {
-            width: 80%;
-            max-width: 400px;
+            width: 90%; /* 移动端加宽 */
+            max-width: 500px;
             position: relative;
             width: 100%;
             height: 0;
-            padding-bottom: 56.25%; /* 16:9 固定比例 */
+            padding-bottom: 56.25%; 
+            margin: 0 auto;
         }
         .media-box iframe,
         .media-box img {
@@ -127,12 +178,26 @@
             height: 100%;
             border: none;
             border-radius: 8px;
-            object-fit: cover; /* 图片适配16:9容器 */
+            object-fit: cover;
         }
-        /* 音频容器单独调整 */
+        /* 视频加载占位 */
+        .video-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0003;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            border-radius: 8px;
+        }
         .audio-box {
-            width: 80%;
-            max-width: 400px;
+            width: 90%;
+            max-width: 500px;
+            margin: 0 auto;
         }
         .audio-box iframe {
             width: 100%;
@@ -140,16 +205,18 @@
             border: none;
         }
         .click-heart {
-            font-size: 70px;
+            font-size: 80px; /* 移动端放大爱心 */
             color: #ff4d6d;
             cursor: pointer;
             margin-top: 30px;
             display: inline-block;
             transition: all 0.3s ease;
             text-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            /* 触摸反馈 */
+            -webkit-tap-highlight-color: transparent;
         }
-        .click-heart:hover {
-            transform: scale(1.2);
+        .click-heart:active { /* 触摸按下效果 */
+            transform: scale(1.3);
             color: #ff2e56;
         }
         .heart-click {
@@ -167,11 +234,12 @@
         h1 { 
             color: #fff; 
             margin-bottom: 20px; 
-            font-size: 2.4rem; 
+            font-size: 2rem; /* 移动端适配字体 */
             text-shadow: 0 2px 8px rgba(0,0,0,0.5); 
+            line-height: 1.4;
         }
         p { 
-            font-size: 1.1rem;
+            font-size: 1rem;
             color: #fff; 
             margin: 8px 0; 
             line-height: 1.6; 
@@ -179,37 +247,56 @@
             font-weight: 600;
         }
         audio { display: none; }
+        /* 小屏手机适配 */
+        @media (max-width: 375px) {
+            .click-heart { font-size: 60px; }
+            h1 { font-size: 1.6rem; }
+            .page2 { padding-bottom: 40px; }
+        }
     </style>
 </head>
 <body>
+    <!-- 加载提示 -->
+    <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+        <p>正在准备惊喜...</p>
+    </div>
+    <!-- 错误提示 -->
+    <div class="error-toast" id="errorToast">资源加载失败，请稍后重试</div>
+
     <div class="float-container" id="floatContainer"></div>
-    <img class="bg-img" src="bg-img.jpg" alt="圣诞背景图">
-    <video class="bg-video" muted loop preload="auto">
+    <img class="bg-img" id="mainBg" src="bg-img.jpg" alt="圣诞背景图" onload="resourceLoaded('img')" onerror="resourceError('背景图')">
+    <video class="bg-video" id="bgVideo" muted loop preload="auto" onloadeddata="resourceLoaded('video')" onerror="resourceError('背景视频')">
         <source src="surprise-bg.mp4" type="video/mp4">
         您的浏览器不支持视频，请更换浏览器重试~
     </video>
 
-    <div class="page1">
+    <div class="page1" id="page1">
         <h1>嘿嘿，恭喜宝宝发现我和你的小惊喜啦</h1>
-        <div class="click-heart" onclick="heartAnimate()">❤️</div>
+        <div class="click-heart" id="heartBtn">❤️</div>
     </div>
 
     <div class="page2" id="page2">
-        <!-- 修复视频嵌入路径和参数 -->
+        <!-- B站视频：带加载占位 -->
         <div class="media-box">
-            <iframe allow="fullscreen; autoplay; muted" allowfullscreen src="https://streamable.com/v29o07"></iframe>
+            <div class="video-placeholder" id="videoPlaceholder">视频加载中...</div>
+            <iframe id="bilibiliVideo" src="https://player.bilibili.com/player.html?bvid=BV1wfBLBkEGg&page=1&autoplay=0" 
+                    scrolling="no" border="0" frameborder="no" framespacing="0" 
+                    allowfullscreen="true" referrerpolicy="no-referrer"
+                    onload="videoIframeLoaded()" onerror="resourceError('B站视频')"></iframe>
         </div>
-        <!-- 图片：16:9比例 -->
+        <!-- 指定图片 -->
         <div class="media-box">
             <a href="https://youke2.picui.cn/s1/2025/12/24/694be8edce95c.jpg" target="_blank">
-                <img src="https://youke2.picui.cn/s1/2025/12/24/694be8edce95c.jpg" alt="表白纪念图片">
+                <img src="https://youke2.picui.cn/s1/2025/12/24/694be8edce95c.jpg" alt="表白纪念图片" onload="resourceLoaded('pic')" onerror="resourceError('表白图片')">
             </a>
         </div>
-        <!-- 音频容器 -->
+        <!-- 音频模块 -->
         <div class="audio-box">
-            <iframe src="https://vocaroo.com/embed/1tooZKPy5SVJ?autoplay=0" frameborder="0" allow="autoplay"></iframe><br>
+            <iframe src="https://vocaroo.com/embed/1tooZKPy5SVJ?autoplay=0" frameborder="0" allow="autoplay" onerror="resourceError('音频')"></iframe><br>
             <a href="https://voca.ro/1tooZKPy5SVJ" title="Vocaroo 錄音機" target="_blank" style="color:#ffd1dc; text-decoration:none;">在 Vocaroo 上檢視 &gt;&gt;</a>
         </div>
+        <!-- 表白文案 -->
         <p>宝宝宝宝，我好喜欢好喜欢你！</p>
         <p>我不要看缘分，我就是要和你在一起一辈子！</p>
         <p>我也没有信心，但是我有决心！</p>
@@ -217,9 +304,62 @@
     </div>
 
 <script>
+    // 全局状态
+    let loadedCount = 0;
+    const totalResources = 3; // 背景图、背景视频、表白图片
+    let resourcesLoaded = false;
+    let hasMediaStarted = false;
+    const LOAD_TIMEOUT = 5000; // 5秒加载超时
+    const loading = document.getElementById('loading');
+    const errorToast = document.getElementById('errorToast');
+    const videoPlaceholder = document.getElementById('videoPlaceholder');
+
+    // 隐藏加载提示
+    function hideLoading() {
+        if (resourcesLoaded) return;
+        resourcesLoaded = true;
+        loading.style.opacity = 0;
+        setTimeout(() => {
+            loading.style.display = 'none';
+        }, 500);
+    }
+
+    // 资源加载成功
+    function resourceLoaded(type) {
+        loadedCount++;
+        console.log(`${type} 加载完成，已加载: ${loadedCount}/${totalResources}`);
+        if (loadedCount >= totalResources) {
+            hideLoading();
+        }
+    }
+
+    // 资源加载失败
+    function resourceError(resName) {
+        console.warn(`${resName}加载失败`);
+        showToast(`${resName}加载失败，不影响核心体验~`);
+        loadedCount++;
+        hideLoading(); // 确保页面继续加载
+    }
+
+    // 显示错误提示
+    function showToast(text) {
+        errorToast.innerText = text;
+        errorToast.style.display = 'block';
+        setTimeout(() => {
+            errorToast.style.display = 'none';
+        }, 3000);
+    }
+
+    // B站视频iframe加载完成
+    function videoIframeLoaded() {
+        videoPlaceholder.style.display = 'none';
+        // 移除自动播放逻辑，让用户手动控制
+    }
+
+    // 生成爱心漂浮
     function createFloatHearts() {
         const floatContainer = document.getElementById('floatContainer');
-        const heartCount = 25; 
+        const heartCount = Math.min(25, Math.floor(window.innerWidth / 20)); // 自适应数量
 
         for (let i = 0; i < heartCount; i++) {
             const heart = document.createElement('div');
@@ -229,35 +369,110 @@
             const duration = Math.random() * 5 + 3;
             heart.style.animationDuration = `${duration}s`;
             heart.style.animationDelay = `${Math.random() * 3}s`;
+            heart.style.willChange = 'transform'; // 性能优化
             floatContainer.appendChild(heart);
         }
     }
 
-    window.onload = createFloatHearts;
+    // 页面加载完成初始化
+    window.onload = () => {
+        createFloatHearts();
+        
+        // 绑定爱心点击/触摸事件
+        const heartBtn = document.getElementById('heartBtn');
+        heartBtn.addEventListener('pointerdown', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            heartAnimate();
+        });
+        
+        // 绑定键盘事件
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' || e.code === 'Enter') {
+                playMedia();
+            }
+        });
+        
+        // 全局点击播放媒体
+        document.addEventListener('click', playMedia);
+        document.addEventListener('touchstart', playMedia, { once: true });
+        
+        // 兜底：若资源加载超时，强制隐藏加载提示
+        setTimeout(() => {
+            if (!resourcesLoaded) {
+                showToast('部分资源加载较慢，正在展示内容...');
+                hideLoading();
+            }
+        }, LOAD_TIMEOUT);
+        
+        // 超时完全隐藏
+        setTimeout(() => {
+            if (loading.style.display !== 'none') {
+                hideLoading();
+            }
+        }, 8000);
+    };
 
-    function heartAnimate() {
+    // 点击/触摸爱心逻辑
+    async function heartAnimate() {
         const clickHeart = document.querySelector('.click-heart');
         clickHeart.classList.add('heart-click');
         
-        setTimeout(() => {
+        setTimeout(async () => {
             document.querySelector('.bg-img').style.display = 'none';
             const video = document.querySelector('.bg-video');
             video.style.display = 'block';
-            video.play();
-            document.querySelector('.page1').style.display = 'none';
-            const page2 = document.getElementById('page2');
-            page2.style.display = 'flex';
+            
+            try {
+                // 先静音播放确保成功
+                video.muted = true;
+                await video.play();
+                // 尝试取消静音
+                video.muted = false;
+            } catch (err) {
+                console.log('视频自动播放被阻止:', err);
+                showToast('点击页面任意处播放背景音乐~');
+            }
+            
+            document.getElementById('page1').style.display = 'none';
+            document.getElementById('page2').style.display = 'flex';
+            
+            // 页面切换后自动滚动到底部
+            setTimeout(() => {
+                document.getElementById('page2').scrollTop = document.getElementById('page2').scrollHeight;
+            }, 100);
         }, 300);
-
+        
         setTimeout(() => {
             clickHeart.classList.remove('heart-click');
         }, 600);
     }
 
-    document.addEventListener('click', () => {
-        const video = document.querySelector('.bg-video');
-        if (video && video.paused) video.play();
-    }, { once: true });
+    // 播放媒体
+    function playMedia() {
+        if (hasMediaStarted) return;
+        hasMediaStarted = true;
+        
+        const video = document.getElementById('bgVideo');
+        if (video && video.paused) {
+            video.play().catch(err => {
+                console.log('背景视频播放失败:', err);
+                showToast('背景视频需要手动播放哦~');
+                hasMediaStarted = false; // 重置标志允许重试
+            });
+        }
+        
+        // 尝试播放B站视频
+        const biliVideo = document.getElementById('bilibiliVideo');
+        if (biliVideo) {
+            try {
+                // 只是标记已尝试，B站iframe不支持外部控制播放
+                biliVideo.classList.add('played');
+            } catch (err) {
+                console.log('B站视频播放失败:', err);
+            }
+        }
+    }
 </script>
 </body>
 </html>
