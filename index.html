@@ -2,243 +2,124 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <!-- 解决 IE 和 Edge 早期版本渲染问题 -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>给宝宝的专属小惊喜</title>
+    <title>表白页面</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            height: 100vh; 
-            font-family: "Microsoft YaHei", sans-serif;
-            overflow: hidden; /* 隐藏滚动条 */
+        /* 初始化样式，消除浏览器默认边距和样式差异 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        /* 爱心漂浮特效容器 */
-        .float-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none; /* 不遮挡点击操作 */
-            z-index: 0;
+        /* 兼容不同浏览器的字体渲染 */
+        body {
+            background-color: #f5f5f5;
+            font-family: -apple-system, BlinkMacSystemFont, "Microsoft YaHei", "Helvetica Neue", sans-serif;
+            -webkit-font-smoothing: antialiased; /* 优化 Safari 字体 */
+            -moz-osx-font-smoothing: grayscale; /* 优化 Firefox 字体 */
         }
-        /* 爱心漂浮样式：浅粉+低透明度，不抢镜 */
-        .float-heart {
-            position: absolute;
-            /* 爱心形状 */
-            width: 12px;
-            height: 12px;
-            background: #ffd1dc;
-            transform: rotate(45deg);
-            opacity: 0.6;
-            animation: float 8s linear infinite; /* 加快飘落速度，原15s→8s */
-        }
-        /* 爱心两侧半圆 */
-        .float-heart::before,
-        .float-heart::after {
-            content: "";
-            position: absolute;
-            width: 12px;
-            height: 12px;
-            background: #ffd1dc;
-            border-radius: 50%;
-        }
-        .float-heart::before {
-            top: -6px;
-            left: 0;
-        }
-        .float-heart::after {
-            top: 0;
-            left: -6px;
-        }
-        /* 爱心漂浮动画：加快下落速度，轨迹更紧凑 */
-        @keyframes float {
-            0% { 
-                transform: rotate(45deg) translateY(-10px) translateX(0); 
-                opacity: 0.6;
-            }
-            50% { 
-                transform: rotate(45deg) translateY(50vh) translateX(10px); 
-                opacity: 0.3;
-            }
-            100% { 
-                transform: rotate(45deg) translateY(100vh) translateX(-10px); 
-                opacity: 0;
-            }
-        }
-        /* 初始圣诞树背景图 */
-        .bg-img {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            object-fit: cover;
-            z-index: -1;
-            opacity: 0.95;
-        }
-        /* 切换后视频背景（字母命名，无空格） */
-        .bg-video {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            object-fit: cover;
-            z-index: -1;
-            opacity: 0.8;
-            display: none; /* 初始不显示 */
-        }
-        .page1 {
-            position: relative;
-            z-index: 1;
-            text-align: center;
-            height: 100vh;
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 30px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            /* 兼容 IE 的弹性布局降级 */
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 0 20px;
+            gap: 30px;
         }
-        /* 第二页：文案固定在中间底部 */
-        .page2 {
+        /* 视频容器：修复 Safari 下比例错乱问题 */
+        .video-box {
             position: relative;
-            z-index: 1;
-            text-align: center;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end; /* 内容靠下 */
-            align-items: center;
-            padding: 0 20px 80px; /* 底部间距 */
-            display: none;
+            width: 100%;
+            height: 0;
+            padding-bottom: 233.577%;
+            border-radius: 8px;
+            overflow: hidden;
         }
-        /* 点击爱心样式 */
-        .click-heart {
-            font-size: 70px;
-            color: #ff4d6d;
-            cursor: pointer;
-            margin-top: 30px;
+        .video-box iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100% !important;
+            height: 100% !important;
+            border: none;
+        }
+        /* 图片容器：兼容 Firefox 下的链接样式 */
+        .img-box {
+            text-align: center;
+        }
+        .img-box img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            /* 解决 IE 下图片边框问题 */
+            border: 0 none;
+        }
+        .img-box a {
+            text-decoration: none;
+            color: inherit;
+        }
+        /* 音频容器：修复 Safari 下 iframe 居中问题 */
+        .audio-box {
+            text-align: center;
+        }
+        .audio-box iframe {
+            display: inline-block !important;
+            border: none;
+        }
+        .audio-box a {
+            color: #4299e1;
+            text-decoration: none;
+            font-size: 14px;
+            margin-top: 8px;
             display: inline-block;
-            transition: all 0.3s ease;
-            text-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
-        .click-heart:hover {
-            transform: scale(1.2);
-            color: #ff2e56;
+        /* 针对 IE 浏览器的降级样式 */
+        @media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+            .container {
+                display: block;
+            }
+            .video-box, .img-box, .audio-box {
+                margin-bottom: 30px;
+            }
         }
-        /* 点击爱心动画：弹跳+闪烁 */
-        .heart-click {
-            animation: jump 0.5s ease, flash 0.3s linear;
-        }
-        @keyframes jump {
-            0% { transform: scale(1.2); }
-            50% { transform: scale(1.8); }
-            100% { transform: scale(1.2); }
-        }
-        @keyframes flash {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
-        }
-        h1 { 
-            color: #fff; 
-            margin-bottom: 20px; 
-            font-size: 2.4rem; 
-            text-shadow: 0 2px 8px rgba(0,0,0,0.5); 
-        }
-        p { 
-            font-size: 1.1rem; /* 文案缩小 */
-            color: #fff; 
-            margin: 8px 0; 
-            line-height: 1.6; 
-            text-shadow: 0 2px 8px rgba(0,0,0,0.5); 
-            font-weight: 600;
-        }
-        audio { display: none; }
     </style>
 </head>
 <body>
-    <!-- 爱心漂浮容器 -->
-    <div class="float-container" id="floatContainer"></div>
-    <!-- 初始圣诞树背景图 -->
-    <img class="bg-img" src="bg-img.jpg" alt="圣诞背景图">
-    <!-- 切换后视频背景 -->
-    <video class="bg-video" muted loop preload="auto">
-        <source src="surprise-bg.mp4" type="video/mp4">
-        您的浏览器不支持视频，请更换浏览器重试~
-    </video>
+    <div class="container">
+        <!-- 视频模块：保留 autoplay，添加跨域允许 -->
+        <div class="video-box">
+            <iframe allow="fullscreen; autoplay; encrypted-media" 
+                    allowfullscreen 
+                    src="https://streamable.com/e/z96j4r?autoplay=1"></iframe>
+        </div>
 
-    <div class="page1">
-        <h1>嘿嘿，恭喜宝宝发现我和你的小惊喜啦</h1>
-        <div class="click-heart" onclick="heartAnimate()">❤️</div>
+        <!-- 图片模块：修复 alt 属性兼容性 -->
+        <div class="img-box">
+            <a href="https://imgchr.com/i/pZGfqOO" target="_blank">
+                <img src="https://s41.ax1x.com/2025/12/24/pZGfqOO.jpg" 
+                     alt="表白纪念图片" 
+                     title="表白纪念图片">
+            </a>
+        </div>
+
+        <!-- 音频模块：移除多余样式，保证跨浏览器加载 -->
+        <div class="audio-box">
+            <iframe width="300" 
+                    height="60" 
+                    src="https://vocaroo.com/embed/1tooZKPy5SVJ?autoplay=0" 
+                    frameborder="0" 
+                    allow="autoplay"></iframe>
+            <br>
+            <a href="https://voca.ro/1tooZKPy5SVJ" 
+               title="Vocaroo 錄音機" 
+               target="_blank">在 Vocaroo 上檢視 &gt;&gt;</a>
+        </div>
     </div>
-
-    <div class="page2" id="page2">
-        <p>宝宝宝宝，我好喜欢好喜欢你！</p>
-        <p>我不要看缘分，我就是要和你在一起一辈子！</p>
-        <p>我也没有信心，但是我有决心！</p>
-        <p>最喜欢最喜欢你啦，mua～</p>
-        <!-- 背景音乐 -->
-        <audio id="music" src="keyibukeyi.mp3" loop>
-    </div>
-
-<script>
-    // 生成爱心漂浮元素：数量减少，原50→25
-    function createFloatHearts() {
-        const floatContainer = document.getElementById('floatContainer');
-        const heartCount = 25; 
-
-        for (let i = 0; i < heartCount; i++) {
-            const heart = document.createElement('div');
-            heart.classList.add('float-heart');
-
-            // 随机初始位置
-            heart.style.left = `${Math.random() * 100}vw`;
-            heart.style.top = `${Math.random() * -100}px`;
-
-            // 随机漂浮速度和延迟
-            const duration = Math.random() * 5 + 3; // 速度区间缩小，更快更均匀
-            heart.style.animationDuration = `${duration}s`;
-            heart.style.animationDelay = `${Math.random() * 3}s`;
-
-            floatContainer.appendChild(heart);
-        }
-    }
-
-    // 页面加载时生成漂浮爱心
-    window.onload = createFloatHearts;
-
-    // 点击爱心逻辑
-    function heartAnimate() {
-        const clickHeart = document.querySelector('.click-heart');
-        clickHeart.classList.add('heart-click');
-        
-        setTimeout(() => {
-            // 切换背景+页面+音乐
-            document.querySelector('.bg-img').style.display = 'none';
-            const video = document.querySelector('.bg-video');
-            video.style.display = 'block';
-            video.play();
-
-            document.querySelector('.page1').style.display = 'none';
-            const page2 = document.getElementById('page2');
-            page2.style.display = 'flex';
-            document.getElementById('music').play().catch(err => {
-                console.log('自动播放失败，点击页面即可触发:', err);
-            });
-        }, 300);
-
-        setTimeout(() => {
-            clickHeart.classList.remove('heart-click');
-        }, 600);
-    }
-
-    // 兼容浏览器自动播放限制
-    document.addEventListener('click', () => {
-        const music = document.getElementById('music');
-        const video = document.querySelector('.bg-video');
-        if (music && music.paused) music.play();
-        if (video && video.paused) video.play();
-    }, { once: true });
-</script>
 </body>
 </html>
